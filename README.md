@@ -1,6 +1,6 @@
 # Request-Router
 
-[![GoDoc](https://godoc.org/github.com/JoergFiedler/request-router?status.svg)](https://godoc.org/JoergFiedler/request-router)
+[![GoDoc](https://godoc.org/github.com/JoergFiedler/rero?status.svg)](https://godoc.org/github.com/JoergFiedler/rero)
 [![Build Status](https://travis-ci.org/JoergFiedler/request-router.svg?branch=master)](https://travis-ci.org/JoergFiedler/request-router)
 [![Coverage Status](https://coveralls.io/repos/github/JoergFiedler/request-router/badge.svg)](https://coveralls.io/github/JoergFiedler/request-router)
 
