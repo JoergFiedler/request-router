@@ -1,4 +1,4 @@
-package router
+package rero
 
 import (
 	. "github.com/onsi/ginkgo"
