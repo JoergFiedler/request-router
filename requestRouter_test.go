@@ -93,10 +93,10 @@ var _ = Describe("Router", func() {
 
 		It("passes on context vars from handler to handler", func() {
 			handler1 := func(rc RequestContext) {
-				rc.GetVars()["john"] = "doe"
+				rc.SetVar("john", "doe")
 			}
 			handler2 := func(rc RequestContext) {
-				Expect(rc.GetVars()["john"]).To(Equal("doe"))
+				Expect(rc.GetVar("john")).To(Equal("doe"))
 			}
 
 			requestRouter.AddPathHandler("GET", "/", handler1)
@@ -124,7 +124,6 @@ var _ = Describe("Router", func() {
 
 		It("add path variables to context vars", func() {
 			handler := func(rc RequestContext) {
-				Expect(rc.GetVars()["entity"]).To(Equal("elephant"))
 				Expect(rc.GetVar("entity")).To(Equal("elephant"))
 			}
 

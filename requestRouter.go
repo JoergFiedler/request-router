@@ -12,8 +12,8 @@ type Handler func(RequestContext)
 type RequestContext interface {
 	// get original http request
 	GetRequest() *http.Request
-	// get map of all variables within the current request context
-	GetVars() map[string]interface{}
+	// set context variable value
+	SetVar(name string, value interface{})
 	// get requests contexts value for variable name
 	GetVar(name string) interface{}
 	// break handler chain and respond with status and body
@@ -105,8 +105,8 @@ func (handlerContext *handlerContext) GetRequest() *http.Request {
 	return handlerContext.request
 }
 
-func (handlerContext *handlerContext) GetVars() map[string]interface{} {
-	return handlerContext.vars
+func (handlerContext *handlerContext) SetVar(name string, value interface{}) {
+	handlerContext.vars[name] = value
 }
 
 func (handlerContext *handlerContext) GetVar(name string) interface{} {
