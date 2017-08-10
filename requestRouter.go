@@ -4,9 +4,38 @@ import (
 	"net/http"
 )
 
+// Handler function definition
 type Handler func(RequestContext)
 
-type HandlerContext struct {
+// RequestContext passed to handlers used to pass values down the
+// handler chain and respond to the client
+type RequestContext interface {
+	// get original http request
+	GetRequest() *http.Request
+	// get map of all variables within the current request context
+	GetVars() map[string]interface{}
+	// get requests contexts value for variable name
+	GetVar(name string) interface{}
+	// break handler chain and respond with status and body
+	Respond(status int, body string)
+}
+
+// RequestRouter used to add handlers to routes
+type RequestRouter interface {
+	AddGlobalHandler(string, Handler)
+	AddPathHandler(string, string, Handler)
+	ServeHTTP(http.ResponseWriter, *http.Request)
+}
+
+// CreateRouter creates a router instance
+func CreateRouter() RequestRouter {
+	return &routeConfig{
+		pathTree:       createPathTree(),
+		globalHandlers: make([]Handler, 0),
+	}
+}
+
+type handlerContext struct {
 	request *http.Request
 	vars    map[string]interface{}
 	closed  bool
@@ -14,51 +43,31 @@ type HandlerContext struct {
 	body    string
 }
 
-type RequestContext interface {
-	GetRequest() *http.Request
-	GetVars() map[string]interface{}
-	GetVar(name string) interface{}
-	Respond(int, string)
-}
-
-type RouteConfig struct {
+type routeConfig struct {
 	globalHandlers []Handler
-	pathTree       PathTree
+	pathTree       pathTree
 }
 
-type RequestRouter interface {
-	AddGlobalHandler(string, Handler)
-	AddPathHandler(string, string, Handler)
-	ServeHTTP(http.ResponseWriter, *http.Request)
-}
-
-func CreateRouter() RequestRouter {
-	return &RouteConfig{
-		pathTree:       CreatePathTree(),
-		globalHandlers: make([]Handler, 0),
-	}
-}
-
-func (config *RouteConfig) AddGlobalHandler(
+func (config *routeConfig) AddGlobalHandler(
 	method string,
 	handler Handler,
 ) {
 	config.globalHandlers = append(config.globalHandlers, handler)
 }
 
-func (config *RouteConfig) AddPathHandler(
+func (config *routeConfig) AddPathHandler(
 	method string,
 	path string,
 	handler Handler,
 ) {
-	config.pathTree.AddPathHandler(method, path, handler)
+	config.pathTree.addPathHandler(method, path, handler)
 }
 
-func (config *RouteConfig) ServeHTTP(
+func (config *routeConfig) ServeHTTP(
 	responseWriter http.ResponseWriter,
 	request *http.Request,
 ) {
-	pathContext := config.pathTree.GetPathContext(
+	pathContext := config.pathTree.getPathContext(
 		request.Method,
 		request.URL.Path,
 	)
@@ -74,7 +83,7 @@ func (config *RouteConfig) ServeHTTP(
 		vars[key] = value
 	}
 
-	requestContext := &HandlerContext{request: request, vars: vars }
+	requestContext := &handlerContext{request: request, vars: vars }
 	for _, handler := range handlers {
 		handler(requestContext)
 		if requestContext.closed {
@@ -86,20 +95,20 @@ func (config *RouteConfig) ServeHTTP(
 	responseWriter.Write([]byte(requestContext.body))
 }
 
-func (handlerContext *HandlerContext) Respond(status int, body string) {
+func (handlerContext *handlerContext) Respond(status int, body string) {
 	handlerContext.closed = true
 	handlerContext.status = status
 	handlerContext.body = body
 }
 
-func (handlerContext *HandlerContext) GetRequest() *http.Request {
+func (handlerContext *handlerContext) GetRequest() *http.Request {
 	return handlerContext.request
 }
 
-func (handlerContext *HandlerContext) GetVars() map[string]interface{} {
+func (handlerContext *handlerContext) GetVars() map[string]interface{} {
 	return handlerContext.vars
 }
 
-func (handlerContext *HandlerContext) GetVar(name string) interface{} {
+func (handlerContext *handlerContext) GetVar(name string) interface{} {
 	return handlerContext.vars[name]
 }

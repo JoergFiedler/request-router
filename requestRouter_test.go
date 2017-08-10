@@ -17,7 +17,7 @@ type MockResponseWriter struct {
 var requestRouter RequestRouter
 
 var _ = Describe("Router", func() {
-	Context("CreatePathTree", func() {
+	Context("createPathTree", func() {
 		BeforeEach(func() {
 			requestRouter = CreateRouter()
 		})
