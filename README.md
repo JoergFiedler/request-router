@@ -1,8 +1,8 @@
 # Request-Router
 
 [![GoDoc](https://godoc.org/github.com/JoergFiedler/rero?status.svg)](https://godoc.org/github.com/JoergFiedler/rero)
-[![Build Status](https://travis-ci.org/JoergFiedler/request-router.svg?branch=master)](https://travis-ci.org/JoergFiedler/request-router)
-[![Coverage Status](https://coveralls.io/repos/github/JoergFiedler/request-router/badge.svg)](https://coveralls.io/github/JoergFiedler/request-router)
+[![Build Status](https://travis-ci.org/JoergFiedler/rero.svg?branch=master)](https://travis-ci.org/JoergFiedler/rero)
+[![Coverage Status](https://coveralls.io/repos/github/JoergFiedler/rero/badge.svg)](https://coveralls.io/github/JoergFiedler/rero)
 
 Simple request router. This is actually my training project to get acquainted
 with go language. Feedback and suggestions are highly appreciated.
