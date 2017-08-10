@@ -4,9 +4,11 @@ go:
   - 1.8.x
 
 install:
-  - go get github.com/mattn/goveralls
-  - go get github.com/onsi/ginkgo
-  - go get github.com/onsi/gomega
+  - go get -u github.com/mattn/goveralls
+  - go get -u github.com/onsi/ginkgo
+  - go get -u github.com/onsi/gomega
+  - go get -u github.com/golang/lint/golint
 
 script:
+  - $HOME/gopath/bin/golint
   - $HOME/gopath/bin/goveralls -service=travis-ci

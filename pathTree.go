@@ -6,52 +6,52 @@ import (
 	"strings"
 )
 
-type PathNode struct {
+type pathNode struct {
 	segment      string
-	children     map[string]*PathNode
+	children     map[string]*pathNode
 	pathHandlers map[string][]Handler
 }
 
-type PathTree interface {
-	AddPathHandler(method string, path string, handler Handler) PathTree
-	GetPathContext(method string, path string) PathContext
+type pathTree interface {
+	addPathHandler(method string, path string, handler Handler) pathTree
+	getPathContext(method string, path string) pathContext
 }
 
-type PathContext struct {
+type pathContext struct {
 	handlers      []Handler
 	pathVariables map[string]string
 }
 
 var varRegexp = regexp.MustCompile("^:([[:alpha:]][[:alnum:]]*):$")
 
-func CreatePathTree() PathTree {
+func createPathTree() pathTree {
 	return createPathNode("/")
 }
 
-func (rootNode *PathNode) AddPathHandler(
+func (rootNode *pathNode) addPathHandler(
 	method string,
 	path string,
 	handler Handler,
-) PathTree {
+) pathTree {
 	segments := extractPathSegments(path)
 	addHandler(rootNode, segments, method, handler)
 	return rootNode
 }
 
-func (rootNode *PathNode) GetPathContext(
+func (rootNode *pathNode) getPathContext(
 	method string,
 	path string,
-) PathContext {
+) pathContext {
 	segments := extractPathSegments(path)
 	return createPathContext(rootNode, method, segments)
 }
 
 func createPathContext(
-	node *PathNode,
+	node *pathNode,
 	method string,
 	segments []string,
-) PathContext {
-	context := PathContext{
+) pathContext {
+	context := pathContext{
 		handlers:      make([]Handler, 0),
 		pathVariables: make(map[string]string),
 	}
@@ -64,7 +64,7 @@ func createPathContext(
 	if len(remainingSegments) == 0 {
 		context.handlers = append(context.handlers, node.pathHandlers[method]...)
 	} else {
-		children := make([]*PathNode, 0)
+		children := make([]*pathNode, 0)
 		child, exist := node.children[remainingSegments[0]]
 		if exist {
 			children = append(children, child)
@@ -84,7 +84,7 @@ func createPathContext(
 }
 
 func addHandler(
-	node *PathNode,
+	node *pathNode,
 	segments []string,
 	method string,
 	handler Handler,
@@ -112,8 +112,8 @@ func getVariableName(segment string) string {
 	return name[1]
 }
 
-func getVariableChildren(nodes map[string]*PathNode) []*PathNode {
-	possibleChildren := make([]*PathNode, 0)
+func getVariableChildren(nodes map[string]*pathNode) []*pathNode {
+	possibleChildren := make([]*pathNode, 0)
 	for segment := range nodes {
 		if isVariable(segment) {
 			possibleChildren = append(possibleChildren, nodes[segment])
@@ -150,15 +150,15 @@ func filter(
 
 func createPathNode(
 	segment string,
-) *PathNode {
-	return &PathNode{
+) *pathNode {
+	return &pathNode{
 		segment:      segment,
-		children:     make(map[string]*PathNode),
+		children:     make(map[string]*pathNode),
 		pathHandlers: make(map[string][]Handler),
 	}
 }
 
-func panicIfInvalid(node *PathNode, segment string) {
+func panicIfInvalid(node *pathNode, segment string) {
 	for key := range node.children {
 		if isVariable(key) || isVariable(segment) && key != segment {
 			panic(fmt.Sprintf("Invalid config. Parent: %s, "+
